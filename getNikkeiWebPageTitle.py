@@ -1,30 +1,59 @@
 # coding: UTF-8
 import urllib2
 from bs4 import BeautifulSoup
+from datetime import datetime
+import csv
+import time
 
-# アクセスするURL
-url = "http://www.nikkei.com/markets/kabu/"
+time_flag = True
 
-# URLにアクセスする htmlが帰ってくる → <html><head><title>経済、株価、ビジネス、政治のニュース:日経電子版</title></head><body....
-html = urllib2.urlopen(url)
+while True:
 
-# htmlをBeautifulSoupで扱う
-soup = BeautifulSoup(html, "html.parser")
+    if datetime.now().minute != 59:
+        time.sleep(58)
+        continue
 
-span = soup.find_all("span")
+    f = open('nikkei_heikin.csv', 'a')
+    writer = csv.writer(f, lineterminator='\n')
 
-nikkei_heikin = ""
+    while datetime.now().second != 59:
+        time.sleep(1)
 
-for tag in span:
-    try:
-        string_ = tag.get("class").pop(0)
+    time.sleep(1)
 
-        if string_ in "mkc-stock_prices":
-            nikkei_heikin = tag.string
+    csv_list = []
 
-            break
+    time_ = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+    csv_list.append(time_)
 
-    except:
-        pass
+    # アクセスするURL
+    url = "http://www.nikkei.com/markets/kabu/"
 
-print nikkei_heikin
+    # URLにアクセスする htmlが帰ってくる → <html><head><title>経済、株価、ビジネス、政治のニュース:日経電子版</title></head><body....
+    html = urllib2.urlopen(url)
+
+    # htmlをBeautifulSoupで扱う
+    soup = BeautifulSoup(html, "html.parser")
+
+    span = soup.find_all("span")
+
+    nikkei_heikin = ""
+
+    for tag in span:
+        try:
+            string_ = tag.get("class").pop(0)
+
+            if string_ in "mkc-stock_prices":
+                nikkei_heikin = tag.string
+
+                break
+
+        except:
+            pass
+
+
+    print time_, nikkei_heikin
+
+    csv_list.append(nikkei_heikin)
+    writer.writerow(csv_list)
+    f.close()
