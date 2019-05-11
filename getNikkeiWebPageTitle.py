@@ -11,4 +11,20 @@ html = urllib2.urlopen(url)
 # htmlをBeautifulSoupで扱う
 soup = BeautifulSoup(html, "html.parser")
 
-print soup.title.string
+span = soup.find_all("span")
+
+nikkei_heikin = ""
+
+for tag in span:
+    try:
+        string_ = tag.get("class").pop(0)
+
+        if string_ in "mkc-stock_prices":
+            nikkei_heikin = tag.string
+
+            break
+
+    except:
+        pass
+
+print nikkei_heikin
